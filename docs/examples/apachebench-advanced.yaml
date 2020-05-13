@@ -1,0 +1,10 @@
+apiVersion: httpd.apache.org/v1alpha1
+kind: ApacheBench
+metadata:
+  name: example-apache-bench
+  labels:
+    example: basic
+spec:
+  concurrency: 2
+  requests: 10 
+  url: http://httpd.apache.org/
