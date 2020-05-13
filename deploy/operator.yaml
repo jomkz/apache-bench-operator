@@ -15,7 +15,7 @@ spec:
       serviceAccountName: apache-bench-operator
       containers:
         - name: apache-bench-operator
-          image: quay.io/jmckind/apache-bench-operator:master
+          image: quay.io/jmckind/apache-bench-operator@sha256:b02d948c0819c2ce9e2d5d16158147e4e475d13eb0229c02d6b675ee10c44a6e
           command:
           - apache-bench-operator
           imagePullPolicy: Always
