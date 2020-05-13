@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apache-bench-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: apache-bench-operator
+  template:
+    metadata:
+      labels:
+        name: apache-bench-operator
+    spec:
+      serviceAccountName: apache-bench-operator
+      containers:
+        - name: apache-bench-operator
+          image: quay.io/jmckind/apache-bench-operator:master
+          command:
+          - apache-bench-operator
+          imagePullPolicy: Always
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "apache-bench-operator"
+          resources: {}
