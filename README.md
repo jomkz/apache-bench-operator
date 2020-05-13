@@ -146,6 +146,8 @@ Waiting:        6    6   0.0      6       6
 Total:         13   13   0.0     13      13
 ```
 
+See the `docs/examples` directory for advanced usage.
+
 ## License
 
 The Apache Benchmark Operator is released under the Apache 2.0 license. See the [LICENSE][license_file] file for details.
