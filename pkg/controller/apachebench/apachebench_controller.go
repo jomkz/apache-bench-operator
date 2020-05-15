@@ -20,6 +20,7 @@ import (
 	v1a1 "github.com/jmckind/apache-bench-operator/pkg/apis/httpd/v1alpha1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -37,7 +38,7 @@ func Add(mgr manager.Manager) error {
 
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
-	return &ReconcileApacheBench{client: mgr.GetClient(), scheme: mgr.GetScheme()}
+	return &ReconcileApacheBench{client: mgr.GetClient(), config: mgr.GetConfig(), scheme: mgr.GetScheme()}
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler
@@ -64,6 +65,7 @@ type ReconcileApacheBench struct {
 	// This client, initialized using mgr.Client() above, is a split client
 	// that reads objects from the cache and writes to the apiserver
 	client client.Client
+	config *rest.Config
 	scheme *runtime.Scheme
 }
 

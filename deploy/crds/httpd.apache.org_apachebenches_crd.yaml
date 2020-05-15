@@ -33,11 +33,88 @@ spec:
         spec:
           description: ApacheBenchSpec defines the desired state of ApacheBench
           properties:
+            authenticate:
+              description: Authenticate enables authentication for requests. The "request.username"
+                and "request.password" properties should be present in the Secret
+                that is referenced by the SecretName property.
+              type: boolean
+            authenticateProxy:
+              description: AuthenticateProxy enables authentication for proxied requests.
+                The "proxy.username" and "proxy.password" properties should be present
+                in the Secret that is referenced by the SecretName property.
+              type: boolean
             concurrency:
               description: Concurrency is the number of multiple requests to perform
                 at a time. Default is one request at a time.
               format: int32
               type: integer
+            configMapName:
+              description: ConfigMapName is the name of a ConfigMap that contains
+                POST or PUT data for requests.
+              type: string
+            contentType:
+              description: ContentType is the Content-type header to use for POST/PUT
+                data, eg. application/x-www-form-urlencoded. Default is text/plain.
+              type: string
+            cookies:
+              additionalProperties:
+                type: string
+              description: 'Cookies is a map of key-value pairs to add as Cookie:
+                lines to the request.'
+              type: object
+            disableLengthErrors:
+              description: OmitLengthErrors disables errors if the length of the responses
+                is not constant. This can be useful for dynamic pages.
+              type: boolean
+            disableMedian:
+              description: DisableMedian disables the display of the median and standard
+                deviation values. Also disables the warning/error messages when the
+                average and median are more than one or two times the standard deviation
+                apart. Default to the min/avg/max values. (legacy support).
+              type: boolean
+            disablePercentageServed:
+              description: OmitPercentageServed disables the "percentage served within
+                XX [ms] table". (legacy support).
+              type: boolean
+            disableProgress:
+              description: DisableProgress disables the progress count every 10% or
+                100 requests when processing more than 150 requests.
+              type: boolean
+            disableSocketExit:
+              description: DisableSocketExit disables exit on socket receive errors.
+              type: boolean
+            enableHEADRequests:
+              description: EnableHEADRequests enables HEAD requests instead of GET.
+              type: boolean
+            headers:
+              additionalProperties:
+                type: string
+              description: Headers is a map of key-value pairs to add as headers to
+                the request.
+              type: object
+            html:
+              description: HTML defines the HTML output options.
+              properties:
+                enabled:
+                  description: Enabled toggles the printing of results in HTML tables.
+                    Default table is two columns wide, with a white background.
+                  type: boolean
+                table:
+                  description: Table is the value to use as attributes for <table>.
+                    Attributes are inserted <table here >.
+                  type: string
+                td:
+                  description: TD is the value to use as attributes for <td>.
+                  type: string
+                tr:
+                  description: TR is the value to use as attributes for <tr>.
+                  type: string
+              required:
+              - enabled
+              type: object
+            httpMethod:
+              description: HTTPMethod is a custom HTTP method for the requests.
+              type: string
             image:
               description: Image is the container image (including tag) to use.
               type: string
@@ -6175,21 +6252,83 @@ spec:
               required:
               - template
               type: object
+            keepAlive:
+              description: KeepAlive enables the HTTP KeepAlive feature, i.e., perform
+                multiple requests within one HTTP session.
+              type: boolean
+            postDataKey:
+              description: POSTDataKey is the name of the key in the ConfigMap specified
+                in the ConfigMapName property that contains data to POST with each
+                request.
+              type: string
+            proxy:
+              description: Proxy is the proxy server for the requests in the form
+                proxy[:port].
+              type: string
+            putDataKey:
+              description: PUTDataKey is the name of the key in the ConfigMap specified
+                in the ConfigMapName property that contains data to PUT with each
+                request.
+              type: string
             requests:
               description: Requests is the number of requests to perform for the benchmarking
                 session. The default is to just perform a single request which usually
                 leads to non-representative benchmarking results.
               format: int32
               type: integer
+            secretName:
+              description: SecretName is the name of the Secret containing authentication
+                credentials and/or the client certificate.
+              type: string
+            timeLimit:
+              description: TimeLimit is the maximum number of seconds to spend for
+                benchmarking. This implies a 50000 value for Requests. Use this to
+                benchmark the server within a fixed total amount of time. Per default
+                there is no timelimit.
+              format: int32
+              type: integer
+            timeout:
+              description: Timeout is the maximum number of seconds to wait before
+                the socket times out. Default is 30 seconds.
+              format: int32
+              type: integer
+            tls:
+              description: TLS defines the options for TLS connections.
+              properties:
+                cipherSuite:
+                  description: CipherSuite is the SSL/TLS cipher suite (See openssl
+                    ciphers).
+                  type: string
+                protocol:
+                  description: Protocol is the SSL/TLS protocol. (SSL2, SSL3, TLS1,
+                    TLS1.1, TLS1.2, or ALL). TLS1.1 and TLS1.2
+                  type: string
+              type: object
             url:
               description: URL is the HTTP endpoint to benchmark.
               type: string
+            verbosity:
+              description: Verbosity is the verbosity level. 4 and above prints information
+                on headers. 3 and above prints response codes (404, 200, etc.). 2
+                and above prints warnings and info.
+              format: int32
+              type: integer
+            windowSize:
+              description: WindowSize is the size of TCP send/receive buffer, in bytes.
+              format: int32
+              type: integer
           required:
           - url
           type: object
         status:
           description: ApacheBenchStatus defines the observed state of ApacheBench
           properties:
+            errors:
+              description: Errors contains any errors that prevented the completion
+                of the benchmark Job(s).
+              items:
+                type: string
+              type: array
             phase:
               description: 'Phase is a simple, high-level summary of where the ApacheBench
                 is in its lifecycle. There are five possible phase values: Pending:
@@ -6199,6 +6338,12 @@ spec:
                 least one ApacheBench Job has experienced a failure. Unknown: For
                 some reason the state of the ApacheBench could not be obtained.'
               type: string
+            results:
+              description: Results contains the result output from each benchmark
+                Job.
+              items:
+                type: string
+              type: array
           required:
           - phase
           type: object
