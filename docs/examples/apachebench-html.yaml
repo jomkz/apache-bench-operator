@@ -1,0 +1,13 @@
+apiVersion: httpd.apache.org/v1alpha1
+kind: ApacheBench
+metadata:
+  name: example-apache-bench
+  labels:
+    example: html
+spec:
+  html:
+    enabled: true
+    table: 'class="ab-table"'
+    tr: 'class="ab-row"'
+    td: 'class="ab-col"'
+  url: http://httpd.apache.org/
