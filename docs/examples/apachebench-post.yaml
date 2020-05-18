@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: example-configmap
+  labels:
+    example: post
+data:
+  post-file: |
+    {
+      foo: "bar",
+      baz: 1
+    }
+---
+apiVersion: httpd.apache.org/v1alpha1
+kind: ApacheBench
+metadata:
+  name: example-apache-bench
+  labels:
+    example: post
+spec:
+  configMapName: example-configmap
+  postDataKey: post-file
+  url: http://example.com/

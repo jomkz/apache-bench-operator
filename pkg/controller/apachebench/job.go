@@ -90,7 +90,7 @@ func (r *ReconcileApacheBench) fetchObject(namespace string, name string, obj ru
 	return r.client.Get(context.TODO(), types.NamespacedName{Namespace: namespace, Name: name}, obj)
 }
 
-// getCommand will return the command for the given ApacheBench.
+// getCommand will return the command to execute for the given ApacheBench.
 func (r *ReconcileApacheBench) getCommand(cr *v1a1.ApacheBench) ([]string, error) {
 	cmd := make([]string, 0)
 	cmd = append(cmd, "ab")
