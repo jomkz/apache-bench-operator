@@ -1,0 +1,10 @@
+apiVersion: httpd.apache.org/v1alpha1
+kind: ApacheBench
+metadata:
+  name: example-apache-bench
+  labels:
+    example: output
+spec:
+  enableCSV: true
+  enableGnuplot: true
+  url: http://httpd.apache.org/

@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 
 	v1a1 "github.com/jmckind/apache-bench-operator/pkg/apis/httpd/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -54,13 +55,31 @@ func (r *ReconcileApacheBench) addJobResultsToStatus(cr *v1a1.ApacheBench, job *
 		return err
 	}
 
-	results := make([]string, 0)
+	results := make([]v1a1.ApacheBenchResult, 0)
 	for _, pod := range podList.Items {
+		result := v1a1.ApacheBenchResult{}
 		logs, err := r.getPodLogs(clientset, pod)
 		if err != nil {
 			return err
 		}
-		results = append(results, string(logs))
+
+		result.Output = logs
+		tmpstr := string(result.Output)
+
+		parts := strings.Split(tmpstr, "\ngnuplot-file\n")
+		if len(parts) > 1 {
+			tmpstr = parts[0]
+			result.Output = []byte(parts[0])
+			result.Gnuplot = []byte(parts[1])
+		}
+
+		parts = strings.Split(tmpstr, "\ncsv-file\n")
+		if len(parts) > 1 {
+			result.Output = []byte(parts[0])
+			result.CSV = []byte(parts[1])
+		}
+
+		results = append(results, result)
 	}
 	cr.Status.Results = results
 
@@ -93,7 +112,11 @@ func (r *ReconcileApacheBench) fetchObject(namespace string, name string, obj ru
 // getCommand will return the command to execute for the given ApacheBench.
 func (r *ReconcileApacheBench) getCommand(cr *v1a1.ApacheBench) ([]string, error) {
 	cmd := make([]string, 0)
-	cmd = append(cmd, "ab")
+
+	cmd = append(cmd, "bash")
+	cmd = append(cmd, "-c")
+
+	cmd = append(cmd, "'ab")
 
 	if cr.Spec.Authenticate {
 		user, pass, err := r.getCredentialsFromSecret(cr, "request.username", "request.password")
@@ -148,6 +171,16 @@ func (r *ReconcileApacheBench) getCommand(cr *v1a1.ApacheBench) ([]string, error
 
 	if cr.Spec.DisableSocketExit {
 		cmd = append(cmd, "-r")
+	}
+
+	if cr.Spec.EnableCSV {
+		cmd = append(cmd, "-e")
+		cmd = append(cmd, "/data/csv-file")
+	}
+
+	if cr.Spec.EnableGnuplot {
+		cmd = append(cmd, "-g")
+		cmd = append(cmd, "/data/gnuplot-file")
 	}
 
 	if cr.Spec.EnableHEADRequests {
@@ -233,6 +266,23 @@ func (r *ReconcileApacheBench) getCommand(cr *v1a1.ApacheBench) ([]string, error
 	}
 
 	cmd = append(cmd, cr.Spec.URL)
+
+	if cr.Spec.EnableCSV {
+		cmd = append(cmd, "&&")
+		cmd = append(cmd, "echo")
+		cmd = append(cmd, "-en")
+		cmd = append(cmd, `"\ncsv-file\n$(cat /data/csv-file)"`)
+	}
+
+	if cr.Spec.EnableGnuplot {
+		cmd = append(cmd, "&&")
+		cmd = append(cmd, "echo")
+		cmd = append(cmd, "-en")
+		cmd = append(cmd, `"\ngnuplot-file\n$(cat /data/gnuplot-file)"`)
+	}
+
+	cmd = append(cmd, "'")
+	log.Info(fmt.Sprintf("COMMAND: %s", cmd))
 	return cmd, nil
 }
 

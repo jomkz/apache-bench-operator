@@ -83,6 +83,19 @@ spec:
             disableSocketExit:
               description: DisableSocketExit disables exit on socket receive errors.
               type: boolean
+            enableCSV:
+              description: EnableCSV toggles the output of Comma separated value (CSV)
+                data which contains for each percentage (from 1% to 100%) the time
+                (in milliseconds) it took to serve that percentage of the requests.
+                This is usually more useful than the 'gnuplot' data; as the results
+                are already 'binned'.
+              type: boolean
+            enableGnuplot:
+              description: EnableGnuplot toggles the output of all measured values
+                out as a 'gnuplot' or TSV (Tab separate values) data. This data can
+                easily be imported into packages like Gnuplot, IDL, Mathematica, Igor
+                or even Excel. The labels are on the first line.
+              type: boolean
             enableHEADRequests:
               description: EnableHEADRequests enables HEAD requests instead of GET.
               type: boolean
@@ -6342,7 +6355,33 @@ spec:
               description: Results contains the result output from each benchmark
                 Job.
               items:
-                type: string
+                description: ApacheBenchResult represents the output from running
+                  ApacheBench.
+                properties:
+                  csv:
+                    description: CSV is the comma separated value (CSV) output which
+                      contains for each percentage (from 1% to 100%) the time (in
+                      milliseconds) it took to serve that percentage of the requests.
+                      This is usually more useful than the 'gnuplot' file; as the
+                      results are already 'binned'. Populated when the EnableCSV Spec
+                      property is set to true.
+                    format: byte
+                    type: string
+                  gnuplot:
+                    description: Gnuplot is all measured values as 'gnuplot' or TSV
+                      (Tab separate values) data. This data can easily be imported
+                      into packages like Gnuplot, IDL, Mathematica, Igor or even Excel.
+                      The labels are on the first line. Populated when the EnableGnuplot
+                      Spec property is set to true.
+                    format: byte
+                    type: string
+                  output:
+                    description: Output is the standard output from ApacheBench.
+                    format: byte
+                    type: string
+                required:
+                - output
+                type: object
               type: array
           required:
           - phase

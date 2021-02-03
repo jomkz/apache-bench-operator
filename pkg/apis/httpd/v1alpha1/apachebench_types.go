@@ -39,6 +39,22 @@ type ApacheBenchHTMLSpec struct {
 	TR string `json:"tr,omitempty"`
 }
 
+// ApacheBenchResult represents the output from running ApacheBench.
+type ApacheBenchResult struct {
+	// Output is the standard output from ApacheBench.
+	Output []byte `json:"output"`
+
+	// CSV is the comma separated value (CSV) output which contains for each percentage (from 1% to 100%) the time
+	// (in milliseconds) it took to serve that percentage of the requests. This is usually more useful than the
+	// 'gnuplot' file; as the results are already 'binned'. Populated when the EnableCSV Spec property is set to true.
+	CSV []byte `json:"csv,omitempty"`
+
+	// Gnuplot is all measured values as 'gnuplot' or TSV (Tab separate values) data.
+	// This data can easily be imported into packages like Gnuplot, IDL, Mathematica, Igor or even Excel.
+	// The labels are on the first line. Populated when the EnableGnuplot Spec property is set to true.
+	Gnuplot []byte `json:"gnuplot,omitempty"`
+}
+
 // ApacheBenchSpec defines the desired state of ApacheBench
 type ApacheBenchSpec struct {
 	// Authenticate enables authentication for requests.
@@ -80,6 +96,16 @@ type ApacheBenchSpec struct {
 
 	// DisableSocketExit disables exit on socket receive errors.
 	DisableSocketExit bool `json:"disableSocketExit,omitempty"`
+
+	// EnableCSV toggles the output of Comma separated value (CSV) data which contains for each percentage
+	// (from 1% to 100%) the time (in milliseconds) it took to serve that percentage of the requests.
+	// This is usually more useful than the 'gnuplot' data; as the results are already 'binned'.
+	EnableCSV bool `json:"enableCSV,omitempty"`
+
+	// EnableGnuplot toggles the output of all measured values out as a 'gnuplot' or TSV (Tab separate values) data.
+	// This data can easily be imported into packages like Gnuplot, IDL, Mathematica, Igor or even Excel.
+	// The labels are on the first line.
+	EnableGnuplot bool `json:"enableGnuplot,omitempty"`
 
 	// EnableHEADRequests enables HEAD requests instead of GET.
 	EnableHEADRequests bool `json:"enableHEADRequests,omitempty"`
@@ -159,7 +185,7 @@ type ApacheBenchStatus struct {
 	Phase string `json:"phase"`
 
 	// Results contains the result output from each benchmark Job.
-	Results []string `json:"results,omitempty"`
+	Results []ApacheBenchResult `json:"results,omitempty"`
 }
 
 // ApacheBenchTLSSpec defines the options for TLS connections.
